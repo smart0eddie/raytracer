@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 //This is to test git
 //test
+=======
+>>>>>>> a0e29b94ea54f4d04eb6d6bce37c7fe19274919a
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
