@@ -13,7 +13,6 @@
 #include <fstream>
 #include <cmath>
 
-#include <unistd.h>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/time.h>
