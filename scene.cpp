@@ -207,8 +207,8 @@ void drawScreen() {
         //some printing to keep track of progress                 
         //if((x%int(Scene.width/8)) == 0 && y == 0)  cout << "." << endl; 
         //if(x == int(Scene.width/2) && y == int(Scene.height/2)) cout << "  halfway!" << endl; 
-        }
-        }
+			}//for, y
+        }//for, x
         
    
 }
@@ -278,7 +278,8 @@ int main(int argc, char *argv[]) {
 			cout << " ---Writing to screen" << endl;
 		
 		imageBuffer = vector<vector<Color> >(Scene.width, vector<Color>(Scene.height, Color(0,0,0)));
-	        double time = 0.0;
+	    
+		double time = 0.0;
 		time = timestamp();
 		drawScreen(); // the main computation hog
 		printf("Time %f", timestamp() - time);

@@ -123,7 +123,7 @@ class Light {
 
 class Matrix{
     public:
-        vector<vector<double> > m; 
+		double m[4][4]; 
     Matrix();
     
     // Instantiator shortcut for translation, scaling, or rotating (depends upon input char)

@@ -277,8 +277,10 @@ ShapeList::ShapeList(vector<Shape*> shapes){
 //return false if no intersection
 bool ShapeList::checkIntersect(Ray ray, Point* p, Shape*& sh, double tmax){
     double t = -1;
-    double min = LARGE_NUM; 
-    for(int i = 0; i < allShapes.size(); i++){
+    double min = LARGE_NUM;
+
+	size_t shapeCount = allShapes.size();
+    for(size_t i = 0; i < shapeCount; i++){
         allShapes[i]->getIntersect(ray, &t); 
         if (t < min && t > 0){
             min = t;
@@ -295,8 +297,10 @@ bool ShapeList::checkIntersect(Ray ray, Point* p, Shape*& sh, double tmax){
 }
 bool ShapeList::checkIntersect(Ray ray, double tmax){
     double t = -1;
-    Shape* closest; 
-    for(int i = 0; i < allShapes.size(); i++){
+    Shape* closest;
+
+	size_t shapeCount = allShapes.size();
+    for(size_t i = 0; i < shapeCount; i++){
        allShapes[i]->getIntersect(ray, &t);
        if (t > 0 && t < tmax) //there is an intersection 
             return true; 
@@ -310,7 +314,8 @@ BoundingBox ShapeList::getRootBox(){
     float maxx, maxy, maxz = -LARGE_NUM; 
     BoundingBox bb; 
     
-    for(int i = 0; i < allShapes.size(); i++){
+	size_t shapeCount = allShapes.size();
+    for(size_t i = 0; i < shapeCount; i++){
         bb = allShapes[i]->getBB(); 
         minx = fmin(bb.min_x, minx);
         miny = fmin(bb.min_y, miny);
@@ -392,7 +397,8 @@ AABB_Node::AABB_Node(ShapeList sl, int depth){
         
         float mid = bb.getMidPoint(axis); 
         //divide this bb by midpoint along longest axis, sort objects
-        for(int i = 0; i < sl.allShapes.size(); i++){
+		size_t shapeCount = sl.allShapes.size();
+		for(size_t i = 0; i < shapeCount; i++){
             if(sl.allShapes[i]->getBB().getMidPoint(axis) < mid)
                 shapeBucket[0].allShapes.push_back(sl.allShapes[i]);
             else

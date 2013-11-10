@@ -223,7 +223,10 @@ Color Color::clone(){
 
 //default constructor makes identity matrix
 Matrix::Matrix(){
-    m =  vector<vector<double> >(4, vector<double>(4,0));
+	for(int i = 0; i < 4; i++)
+		for(int j = 0; j < 4; j++)
+			m[i][j] = 0;
+
     m[0][0] = 1;   
     m[1][1] = 1;  
     m[2][2] = 1;  
@@ -236,7 +239,9 @@ Matrix::Matrix(){
 //Store Matrix in row major form. 
 Matrix::Matrix(char type, double x, double y, double z, double angle = 0){
 	
-    m = vector<vector<double> >(4, vector<double>(4,0));
+	for(int i = 0; i < 4; i++)
+		for(int j = 0; j < 4; j++)
+			m[i][j] = 0;
     
     if(type == 't'){ 
 		m[0][0] = 1;   
@@ -309,11 +314,8 @@ Matrix Matrix::operator*(Matrix B){
 }
 
 Point Matrix::operator*(Point p){
-	vector<double> c = vector<double>(4,0);
-	vector<double> pv = vector<double>(4,1);
-	pv[0] = p.x;
-	pv[1] = p.y;
-	pv[2] = p.z;
+	double c[4] = {0};
+	double pv[4] = {p.x, p.y, p.z, 1};
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -324,11 +326,8 @@ Point Matrix::operator*(Point p){
 	return Point(c[0], c[1], c[2]);
 }
 Vector Matrix::operator*(Vector v){
-	vector<double> c = vector<double>(4,0);
-	vector<double> pv = vector<double>(4,0);
-	pv[0] = v.dx;
-	pv[1] = v.dy;
-	pv[2] = v.dz;
+	double c[4] = {0};
+	double pv[4] = {v.dx, v.dy, v.dz, 0};
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
