@@ -459,7 +459,9 @@ void MatrixStack::pop(){
 	productT = Matrix();
 	productR = Matrix();
 	productS = Matrix();
-	for (int i = 0; i < stack.size(); i++) {
+
+	size_t stackSize = stack.size();
+	for (size_t i = 0; i < stackSize; i++) {
 		product = product * stack[i];
 		productT = productT * stackT[i];
 		productR = productR * stackR[i];

@@ -33,6 +33,7 @@ Color getBRDF(Point point, float radius, Color kd, Color ks, Color ke, int sp, v
 	  Color baseColor = Color(0.0, 0.0, 0.0); 
 	  //Color ambColor = Color(0.0, 0.0, 0.0); 
 	
+
 	  for (int k = 0; k < lights.size(); k++) {
 		  Light light = lights[k];
 
