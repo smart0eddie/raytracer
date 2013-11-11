@@ -181,12 +181,11 @@ void drawScreen() {
     Point point, point1, point2; 
     Ray ray; 
     
-    Color allColors = Color(0, 0, 0); 
-    Color c; 
+    Color allColors = Color(0, 0, 0);
     
     int x, y;
     double u, v; 
-	#pragma omp parallel for private(x, y, u, v, point, point1,point2, ray, c, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
+	#pragma omp parallel for private(x, y, u, v, point, point1,point2, ray, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
         for (x = 0; x<Scene.width ; x += 1) {
             for (y = 0; y<Scene.height; y += 1) {
                 u = double(x)/Scene.width;
@@ -201,9 +200,8 @@ void drawScreen() {
                 
                 ray = Ray(Scene.lookfrom, point);
                 ray.direction = ray.direction.normalize();
-    
-                Color c = trace(ray, 0, allColors); 
-                imageBuffer[x][y] = trace(ray, 0, Color(0, 0, 0));//c.clone();
+
+                imageBuffer[x][y] = trace(ray, 0, Color(0, 0, 0));
                 
         //some printing to keep track of progress                 
         //if((x%int(Scene.width/8)) == 0 && y == 0)  cout << "." << endl; 
