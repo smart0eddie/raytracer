@@ -176,7 +176,6 @@ void drawScreen() {
     Point UR = imgc +  uv     +  rv;
     Point LL = imgc + (uv*-1) + (rv*-1);
     Point LR = imgc + (uv*-1) +  rv;
-
     
     Point point, point1, point2; 
     Ray ray; 
@@ -185,9 +184,9 @@ void drawScreen() {
     
     int x, y;
     double u, v; 
-	#pragma omp parallel for private(x, y, u, v, point, point1,point2, ray, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
-        for (x = 0; x<Scene.width ; x += 1) {
-            for (y = 0; y<Scene.height; y += 1) {
+	#pragma omp parallel for private(x, y, u, v, point, point1, point2, ray, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
+        for (x = 0; x < Scene.width ; x += 1) {
+            for (y = 0; y < Scene.height; y += 1) {
                 u = double(x)/Scene.width;
                 v = double(y)/Scene.height;
                 
