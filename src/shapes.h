@@ -21,8 +21,8 @@ class BRDF{
         int sp; 
     
     BRDF(); 
-    BRDF(const Color&, const Color&, const Color&, float, int);
-    BRDF clone() const;
+    BRDF(Color, Color, Color, float, int);
+    BRDF clone();
 };
 
 class BoundingBox{
@@ -34,19 +34,19 @@ class BoundingBox{
     BoundingBox(){};
     BoundingBox(float, float, float, float, float, float); 
     
-    int getLongestAxis() const; 
-    float getMidPoint(int) const; 
-    bool intersect(const Ray&) const; 
+    int getLongestAxis(); 
+    float getMidPoint(int); 
+    bool intersect(Ray); 
 };
 
 
 class Shape{
   public:   
     BRDF brdf;
-    virtual bool getIntersect(const Ray&, double*) const = 0; 
-    virtual bool getIntersect(const Ray&) const = 0; 
-    virtual Vector getNormal(const Point&) const = 0; 
-    virtual BoundingBox getBB() const = 0; 
+    virtual bool getIntersect(Ray, double*) = 0; 
+    virtual bool getIntersect(Ray) = 0; 
+    virtual Vector getNormal(Point) = 0; 
+    virtual BoundingBox getBB() = 0; 
     
     bool isSphere;
     
@@ -56,13 +56,13 @@ class Shape{
 class ShapeList{ //see AggregatePrimitive on website 
     public:
         vector<Shape*> allShapes; 
-        bool checkIntersect(const Ray&, Point*, Shape*&, double) const;
-        bool checkIntersect(const Ray&, double) const;
+        bool checkIntersect(Ray, Point*, Shape*&, double);
+        bool checkIntersect(Ray, double);
         
-        BoundingBox getRootBox() const; 
+        BoundingBox getRootBox(); 
         
         ShapeList() {}; 
-        ShapeList(const vector<Shape*>&); 
+        ShapeList(vector<Shape*>); 
 };
 
 class AABB_Node{
@@ -71,8 +71,8 @@ class AABB_Node{
         AABB_Node* children[2];  
         ShapeList containedShapes; 
         
-        AABB_Node(const ShapeList&, int); 
-        bool CollisionTest(const Ray&, Point*, Shape*&) const; 
+        AABB_Node(ShapeList, int); 
+        bool CollisionTest(Ray, Point*, Shape*&); 
 };
 
 
@@ -89,17 +89,17 @@ class Sphere: public Shape{
         
     
         Sphere() {}; 
-        Sphere(const Point&, float); 
-        Sphere(const Point&, float, const Matrix&, const Matrix&, const Matrix&, const Matrix&); 
+        Sphere(Point, float); 
+        Sphere(Point, float, Matrix, Matrix, Matrix, Matrix); 
         
         
   
-        bool getIntersect(const Ray&, double*) const; 
-        bool getIntersect(const Ray&) const; 
-        Vector getNormal(const Point&) const; 
-        BoundingBox getBB() const; 
+        bool getIntersect(Ray, double*); 
+        bool getIntersect(Ray); 
+        Vector getNormal(Point); 
+        BoundingBox getBB(); 
         
-        Ray getLight(const Ray&) const;
+        Ray getLight(Ray);
         
       
 };
@@ -112,12 +112,12 @@ class Triangle: public Shape{
         Matrix RtimesSinv;
     
         Triangle() {};
-        Triangle(const Point&, const Point&, const Point&, const Matrix&); 
+        Triangle(Point, Point, Point, Matrix); 
         
-        bool getIntersect(const Ray&, double*) const; 
-        bool getIntersect(const Ray&) const; 
-        Vector getNormal(const Point&) const; //no need for Point b/c all normals are same on triangle
-        BoundingBox getBB() const; 
+        bool getIntersect(Ray, double*); 
+        bool getIntersect(Ray); 
+        Vector getNormal(Point); //no need for Point b/c all normals are same on triangle
+        BoundingBox getBB(); 
 
 };
 

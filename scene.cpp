@@ -93,7 +93,7 @@ void myKeyboardFunc(unsigned char key, int x, int y){
     exit(0);
 }
 
-Color trace(const Ray &ray, int depth, Color baseColor){
+Color trace(Ray ray, int depth, Color baseColor){
     if (depth > Scene.reflectiondepth){
         return Color(0, 0, 0);
     }
@@ -106,8 +106,7 @@ Color trace(const Ray &ray, int depth, Color baseColor){
           
     BRDF brdf = intershape->brdf; 
     Vector N = intershape->getNormal(inter); 
-	size_t lightCount = Scene.lights.size();
-    for(size_t i = 0; i < lightCount; i++){
+    for(int i = 0; i < Scene.lights.size(); i++){
         Ray lightray, L;
         if(Scene.lights[i].directional) {
             lightray = Ray(inter, Vector(Point(0,0,0), Scene.lights[i].source).normalize()); 
@@ -157,6 +156,7 @@ void drawScreen() {
     Vector look_vector = Vector(Scene.lookfrom, Scene.lookat).normalize();
     Vector up_dir = Scene.up_dir;
     
+    
     Vector right_dir = up_dir.crossProduct(look_vector);
     right_dir = right_dir.normalize();
 
@@ -176,25 +176,33 @@ void drawScreen() {
     Point LL = imgc + (uv*-1) + (rv*-1);
     Point LR = imgc + (uv*-1) +  rv;
 
-    Point point; 
+    
+    Point point, point1, point2; 
     Ray ray; 
     
-    const Color allColors = Color(0, 0, 0); 
+    Color allColors = Color(0, 0, 0); 
+    Color c; 
     
         int x, y;
         double u, v; 
-	#pragma omp parallel for private(x, y, u, v, point, ray)
-        for (x = 0; x < Scene.width ; x += 1) {
-            for (y = 0; y < Scene.height; y += 1) {
+#pragma omp parallel for private(x,y,u,v, point, point1,point2, ray, c, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR, allColors)
+        for (x = 0; x<Scene.width ; x += 1) {
+            for (y = 0; y<Scene.height; y += 1) {
                 u = double(x)/Scene.width;
                 v = double(y)/Scene.height;
                 
-                point = ((LL*v) + (UL*(1-v))) * u + ((LR*v) + (UR*(1-v))) * (1-u);
+                point1 = (LL*v) + (UL*(1-v));
+                point1 = point1 * u;
+                
+                point2 = (LR*v) + (UR*(1-v));
+                point2 = point2 * (1-u);
+                point = point1 + point2;
                 
                 ray = Ray(Scene.lookfrom, point);
                 ray.direction = ray.direction.normalize();
     
-                imageBuffer[x][y] = trace(ray, 0, allColors);
+                Color c = trace(ray, 0, Color(0, 0, 0)); 
+                imageBuffer[x][y] = c.clone();
                 
         //some printing to keep track of progress                 
         //if((x%int(Scene.width/8)) == 0 && y == 0)  cout << "." << endl; 
