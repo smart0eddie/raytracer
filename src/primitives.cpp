@@ -24,7 +24,7 @@ Vector::Vector(double nx, double ny, double nz){
         dz = nz; 
         mag = sqrt(nx*nx + ny*ny + nz*nz);
 }
-Vector::Vector(Point p){
+Vector::Vector(const Point &p){
        dx = p.x;
        dy =  p.y; 
        dz = p.z; 
@@ -34,7 +34,7 @@ Vector::Vector(Point p){
 
 //Construct vector from two points
 //Vector goes from p1 to p2
-Vector::Vector(Point p1, Point p2){
+Vector::Vector(const Point &p1, const Point &p2){
     dx = p2.x - p1.x; 
     dy = p2.y - p1.y;
     dz = p2.z - p1.z; 
@@ -48,7 +48,7 @@ Ray:: Ray(double nx, double ny, double nz, double ndx, double ndy, double ndz) {
         direction = Vector(ndx, ndy, ndz).normalize();
 }
 //Construct ray given an origin and direction vector
-Ray::Ray(Point p, Vector dir){
+Ray::Ray(const Point &p, const Vector &dir){
     origin = p;
     direction = dir;     
     
@@ -58,7 +58,7 @@ Ray::Ray(Point p, Vector dir){
 
 
 //Construct ray given two points
-Ray:: Ray(Point startingPoint, Point newPoint) {
+Ray:: Ray(const Point &startingPoint, const Point &newPoint) {
 		origin = Point(startingPoint.x,
                 startingPoint.y,
                 startingPoint.z);
@@ -107,24 +107,24 @@ Light::Light(double xp, double yp, double zp, double red, double green, double b
 
 //PointA - PointB = vector from B to A
 //return Vector that is result of this - p, which is from p to this
-Vector Point:: subtract (Point p){
+/*Vector Point:: subtract (const Point &p){
+    return Vector(x - p.x, y - p.y, z - p.z); 
+}*/
+
+Vector Point::operator- (const Point &p) const{
     return Vector(x - p.x, y - p.y, z - p.z); 
 }
 
-Vector Point::operator- (Point p){
-    return Vector(x - p.x, y - p.y, z - p.z); 
-}
-
-Point Point::operator+ (Vector v){
+Point Point::operator+ (const Vector &v) const{
     return Point(x + v.dx, y + v.dy, z + v.dz); 
 }
 
 // implemented only for the sake of camera; be wary of using normally....
-Point Point::operator+ (Point p){
+Point Point::operator+ (const Point &p) const{
     return Point(x + p.x, y + p.y, z + p.z); 
 }
 
-Point Point::operator* (double s){
+Point Point::operator* (double s) const{
     return Point(x*s, y*s, z*s); 
 }
 
@@ -135,31 +135,31 @@ Point Point::operator* (double s){
 //****************************************************
 
 //normalize this vector
-Vector Vector::normalize(){
+Vector Vector::normalize() const{
     Vector v = Vector((double)dx / mag, (double)dy / mag, (double)dz / mag);  
     v.mag = 1;
     return v;
 }
-double Vector::dotProduct(Vector v){
+double Vector::dotProduct(const Vector &v) const{
     return dx * v.dx + dy * v.dy + dz * v.dz; 
 }
 
 //return negation of this vector
-Vector Vector::negative(){
+Vector Vector::negative() const{
    return Vector(-dx, -dy, -dz); 
 }
 
 //multiply this vector by scalar
-Vector Vector :: operator*(double a){
+Vector Vector :: operator*(double a) const{
    return Vector(a*dx, a*dy, a*dz); 
 }
 
 //add to this vector to another vector
-Vector Vector::operator+ (Vector v){
+Vector Vector::operator+ (const Vector &v) const{
     return Vector(dx + v.dx, dy + v.dy, dz + v.dz); 
 }
 //subtract by another vector
-Vector Vector::operator- (Vector v){
+Vector Vector::operator- (const Vector &v) const{
     return Vector(dx - v.dx, dy - v.dy, dz - v.dz); 
 }
 
@@ -167,7 +167,7 @@ Vector Vector::operator- (Vector v){
 // takes the cross product of this vector and vector V.  Returns 
 // in a vector which is perpendicular to both and therefore normal 
 // to the plane containing them
-Vector Vector::crossProduct(Vector v){
+Vector Vector::crossProduct(const Vector &v) const{
     return Vector(dy*v.dz - dz*v.dy,
 				  dz*v.dx - dx*v.dz,
 				  dx*v.dy - dy*v.dx);
@@ -194,26 +194,26 @@ Vector Vector::crossProduct(Vector v){
 // Color functions
 //****************************************************
 //add the rgb values of this color to another color 	
-Color Color::operator+(Color color){
+Color Color::operator+(const Color &color) const{
     return Color(r + color.r, g + color.g, b + color.b); 
 }
 
-void Color::operator+=(Color color){
+void Color::operator+=(const Color &color){
     r += color.r;
     g += color.g;
     b += color.b;
 }
     
 //multiply the rgb values of this color to another color 	
-Color Color::operator*(Color color){
+Color Color::operator*(const Color &color) const{
     return Color(r * color.r, g * color.g, b * color.b); 
 }
 //overload to allow scalar multiplication
-Color Color::operator*(double a){
+Color Color::operator*(double a) const{
     return Color(r * a, g * a, b * a); 
 }
 
-Color Color::clone(){
+Color Color::clone() const{
     return Color(r, g, b); 
 }
 
@@ -296,7 +296,7 @@ Matrix::Matrix(char type, double x, double y, double z, double angle = 0){
 } 
 
 // Naive Matrix Multiplication;  O(n^3).  Order matters!!! M*B != B*M
-Matrix Matrix::operator*(Matrix B){
+Matrix Matrix::operator*(const Matrix &B) const{
 	Matrix C;
 	double sum;
     for (int i = 0; i < 4; i++) {
@@ -313,7 +313,7 @@ Matrix Matrix::operator*(Matrix B){
 	return C;
 }
 
-Point Matrix::operator*(Point p){
+Point Matrix::operator*(const Point &p) const{
 	double c[4] = {0};
 	double pv[4] = {p.x, p.y, p.z, 1};
 	
@@ -325,7 +325,7 @@ Point Matrix::operator*(Point p){
 	
 	return Point(c[0], c[1], c[2]);
 }
-Vector Matrix::operator*(Vector v){
+Vector Matrix::operator*(const Vector &v) const{
 	double c[4] = {0};
 	double pv[4] = {v.dx, v.dy, v.dz, 0};
 	
@@ -338,7 +338,7 @@ Vector Matrix::operator*(Vector v){
 	return Vector(c[0], c[1], c[2]);//.normalize();
 }
 
-Ray Matrix::operator*(Ray r){
+Ray Matrix::operator*(const Ray &r) const{
 	Ray nray;
 	nray.origin = (*this) * (r.origin);
 	
@@ -348,7 +348,7 @@ Ray Matrix::operator*(Ray r){
 
 
 // vector * matrix.... not the same as M * v
-Vector Matrix :: vectorTimesM(Vector v){
+Vector Matrix :: vectorTimesM(const Vector &v) const{
    return Point(v.dx*m[0][0]  +  v.dy*m[0][1]  +  v.dz*m[0][2],
 				v.dx*m[1][0]  +  v.dy*m[1][1]  +  v.dz*m[1][2],
 				v.dx*m[2][0]  +  v.dy*m[2][1]  +  v.dz*m[2][2]);
@@ -357,7 +357,7 @@ Vector Matrix :: vectorTimesM(Vector v){
 
 // returns a new matrix that is the inversion of m.
 // modified from http://stackoverflow.com/questions/2624422/efficient-4x4-matrix-inverse-affine-transform/7596981#7596981
-Matrix Matrix::invert() {
+Matrix Matrix::invert() const{
 	Matrix inv;
 	
 	double s0 = m[0][0] * m[1][1] - m[1][0] * m[0][1];
@@ -401,7 +401,7 @@ Matrix Matrix::invert() {
 	return inv;
 }
 
-Matrix Matrix::clone() {
+Matrix Matrix::clone() const{
 	Matrix B;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -412,7 +412,7 @@ Matrix Matrix::clone() {
 	return B;
 }
 
-void Matrix::debug() {
+void Matrix::debug() const{
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			cout << "[" << m[i][j] << "]";
@@ -471,7 +471,7 @@ void MatrixStack::pop(){
 
 // mulitiplies in the new transformation matrix B to the top of the stack 
 // and updates product to reflect new stack.
-void MatrixStack::addTransform(Matrix B, char type) {
+void MatrixStack::addTransform(const Matrix &B, char type) {
 	
 	if(type == 't'){ 
 		stackT[stackT.size() - 1] = stackT[stackT.size() - 1] * B;
