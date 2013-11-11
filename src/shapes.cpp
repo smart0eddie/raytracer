@@ -17,11 +17,11 @@ BRDF::BRDF(){
     kr = 0.3; // reflection
     sp = 20; 
 }
-BRDF::BRDF(Color k_d, Color k_s, Color k_e, float k_r, int s_p){
+BRDF::BRDF(const Color& k_d, const Color& k_s, const Color& k_e, float k_r, int s_p){
     kd = k_d, ks = k_s, ke = k_e, kr = k_r, sp = s_p; 
 }
 // a deep clone of the object
-BRDF BRDF::clone(){
+BRDF BRDF::clone() const{
     BRDF n;
     n.kd = Color(kd.r, kd.g, kd.b);
     n.ks = Color(ks.r, ks.g, ks.b);
@@ -35,7 +35,7 @@ BoundingBox::BoundingBox(float minx, float maxx, float miny, float maxy, float m
     min_x = minx, max_x = maxx, min_y = miny, max_y = maxy, min_z = minz, max_z = maxz; 
 }
 
-int BoundingBox::getLongestAxis(){
+int BoundingBox::getLongestAxis() const{
     float xd = max_x - min_x; 
     float yd = max_y - min_y;
     float zd = max_z - min_z;
@@ -48,7 +48,7 @@ int BoundingBox::getLongestAxis(){
     
 }
 
-float BoundingBox::getMidPoint(int axis){
+float BoundingBox::getMidPoint(int axis) const{
     if(axis == X_AXIS){
         
         return (max_x - min_x)/2; 
@@ -66,7 +66,7 @@ float BoundingBox::getMidPoint(int axis){
 
 
 
-Sphere::Sphere(Point c, float r){
+Sphere::Sphere(const Point& c, float r){
     brdf = BRDF(); 
     center = c;
     radius = r; 
@@ -81,7 +81,7 @@ Sphere::Sphere(Point c, float r){
     isSphere = true; 
     
 }
-Sphere::Sphere(Point c, float r, Matrix rm, Matrix rinv, Matrix s, Matrix sinv){
+Sphere::Sphere(const Point& c, float r, const Matrix& rm, const Matrix& rinv, const Matrix& s, const Matrix& sinv){
     brdf = BRDF(); 
     center = c;
     radius = r; 
@@ -98,7 +98,7 @@ Sphere::Sphere(Point c, float r, Matrix rm, Matrix rinv, Matrix s, Matrix sinv){
     
 }
 
-Vector Sphere::getNormal(Point p){
+Vector Sphere::getNormal(const Point& p) const{
     //return (invertTrans * Vector(trans * center, trans * p)).normalize(); 
     //return (invertTrans * Vector(center, p)).normalize(); 
     
@@ -119,7 +119,7 @@ Vector Sphere::getNormal(Point p){
      
 }   
 
-BoundingBox Sphere::getBB(){
+BoundingBox Sphere::getBB() const{
     return BoundingBox(center.x - radius,
                        center.x + radius,
                        center.y - radius,
@@ -131,10 +131,10 @@ BoundingBox Sphere::getBB(){
 }
 
     
-bool Sphere::getIntersect(Ray rayinp, double* t){
+bool Sphere::getIntersect(const Ray& rayinp, double* t) const{
 	Ray ray = invertTrans * rayinp;
 
-    Vector AC = ray.origin.subtract(invertTrans * center); 
+    Vector AC = ray.origin - invertTrans * center; 
     double temp1 = pow(AC.dotProduct(ray.direction), 2); 
     double temp2 = AC.dotProduct(AC) - pow(radius, 2); 
     double vdot = ray.direction.dotProduct(ray.direction);
@@ -161,7 +161,7 @@ bool Sphere::getIntersect(Ray rayinp, double* t){
 } 
 
 // Deprecated
-Ray Sphere::getLight(Ray L){
+Ray Sphere::getLight(const Ray& L) const{
        // return (invertTrans * Vector(center, p)).normalize(); 
     //without regard to Transformations, light is Ray(bias, lightray,direction); 
     
@@ -172,12 +172,12 @@ Ray Sphere::getLight(Ray L){
 
 
 
-bool Sphere::getIntersect(Ray rayinp){
+bool Sphere::getIntersect(const Ray& rayinp) const{
 	Ray ray = invertTrans * rayinp;
 	
 	//ray.direction.normalize();
 	
-    Vector AC = ray.origin.subtract(invertTrans * center); 
+    Vector AC = ray.origin - invertTrans * center; 
     double temp1 = pow(AC.dotProduct(ray.direction), 2); 
     double temp2 = AC.dotProduct(AC) - pow(radius, 2); 
     double vdot = ray.direction.dotProduct(ray.direction);
@@ -188,7 +188,7 @@ bool Sphere::getIntersect(Ray rayinp){
 }
 
 
-Triangle::Triangle(Point v_1, Point v_2, Point v_3, Matrix m){
+Triangle::Triangle(const Point& v_1, const Point& v_2, const Point& v_3, const Matrix& m){
     vertices.push_back(v_1);
     vertices.push_back(v_2);
     vertices.push_back(v_3);
@@ -204,7 +204,7 @@ Triangle::Triangle(Point v_1, Point v_2, Point v_3, Matrix m){
     isSphere = false; 
 }
 
-BoundingBox Triangle::getBB(){
+BoundingBox Triangle::getBB() const{
     //don't return bounding box with 0 volume
     
    float xmin = min(min(v1.x, v2.x), v2.x);
@@ -226,7 +226,7 @@ BoundingBox Triangle::getBB(){
 
 
 
-Vector Triangle::getNormal(Point p){
+Vector Triangle::getNormal(const Point& p) const{
     Vector v13 = v1 - v3; 
     Vector v23 = v2 - v3; 
     
@@ -235,7 +235,7 @@ Vector Triangle::getNormal(Point p){
 }
 
 
-bool Triangle::getIntersect(Ray ray, double* t){ 
+bool Triangle::getIntersect(const Ray& ray, double* t) const{ 
    Vector u = v1 - v3;
    Vector v = v2 - v3; 
    Vector N = u.crossProduct(v).normalize(); 
@@ -263,19 +263,19 @@ bool Triangle::getIntersect(Ray ray, double* t){
 
 
 
-bool Triangle::getIntersect(Ray ray){ //used algorithm from http://geomalgorithms.com/a06-_intersect-2.html
+bool Triangle::getIntersect(const Ray& ray) const{ //used algorithm from http://geomalgorithms.com/a06-_intersect-2.html
 
 	double t; 
 	return getIntersect(ray,  &t);    
 }
 
-ShapeList::ShapeList(vector<Shape*> shapes){
+ShapeList::ShapeList(const vector<Shape*> &shapes){
     allShapes = shapes; 
 }
 
 //find the closest shape the ray interects (FOR POSITIVE T), and at which point
 //return false if no intersection
-bool ShapeList::checkIntersect(Ray ray, Point* p, Shape*& sh, double tmax){
+bool ShapeList::checkIntersect(const Ray& ray, Point* p, Shape*& sh, double tmax) const{
     double t = -1;
     double min = LARGE_NUM;
 
@@ -295,7 +295,7 @@ bool ShapeList::checkIntersect(Ray ray, Point* p, Shape*& sh, double tmax){
 
     return true; 
 }
-bool ShapeList::checkIntersect(Ray ray, double tmax){
+bool ShapeList::checkIntersect(const Ray& ray, double tmax) const{
     double t = -1;
     Shape* closest;
 
@@ -309,7 +309,7 @@ bool ShapeList::checkIntersect(Ray ray, double tmax){
     return false;
 }
 
-BoundingBox ShapeList::getRootBox(){
+BoundingBox ShapeList::getRootBox() const{
     float minx, miny, minz = LARGE_NUM; 
     float maxx, maxy, maxz = -LARGE_NUM; 
     BoundingBox bb; 
@@ -330,7 +330,7 @@ BoundingBox ShapeList::getRootBox(){
     
 }
 
-bool BoundingBox::intersect(Ray r){ 
+bool BoundingBox::intersect(const Ray& r) const{ 
     float xmin, xmax, ymin, ymax, zmin, zmax; 
     float xd = r.direction.dx;
     if (xd == 0) xd = 0.00001;
@@ -384,7 +384,7 @@ bool BoundingBox::intersect(Ray r){
 
 //make tree by passing in allshapes to get root
 //adapted from http://www.flipcode.com/archives/Dirtypunks_Column-Issue_05_AABB_Trees_Back_To_Playing_With_Blocks.shtml
-AABB_Node::AABB_Node(ShapeList sl, int depth){ 
+AABB_Node::AABB_Node(const ShapeList &sl, int depth){ 
     
     
     bb = sl.getRootBox(); 
@@ -417,7 +417,7 @@ AABB_Node::AABB_Node(ShapeList sl, int depth){
     
 }
 
-bool AABB_Node::CollisionTest(Ray ray, Point* p, Shape*& sh){
+bool AABB_Node::CollisionTest(const Ray& ray, Point* p, Shape*& sh) const{
     if(!bb.intersect(ray)){
         return false; 
     }

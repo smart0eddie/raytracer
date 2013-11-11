@@ -33,11 +33,11 @@ public:
     Point(double, double, double); 
 
     double x, y, z;
-    Vector subtract(Point); 
-    Point operator + (Vector); //position + direction = position 
-    Point operator + (Point); // point addition; shortcut for camera's ray formula
-    Point operator * (double); 
-    Vector operator - (Point);  
+    //Vector subtract(const Point&) const; 
+    Point operator + (const Vector&) const; //position + direction = position 
+    Point operator + (const Point&) const; // point addition; shortcut for camera's ray formula
+    Point operator * (double) const; 
+    Vector operator - (const Point&) const;  
     
     
     
@@ -49,21 +49,21 @@ class Vector{
  public:
     Vector() {};  
     Vector(double, double, double);
-    Vector(Point); 
-    Vector(Point, Point); 
+    Vector(const Point&); 
+    Vector(const Point&, const Point&); 
     
     double dx, dy, dz;
     double mag;
     
-    Vector normalize();
-    double dotProduct(Vector);
-    Vector negative();
-    Vector crossProduct(Vector);
+    Vector normalize() const;
+    double dotProduct(const Vector&) const;
+    Vector negative() const;
+    Vector crossProduct(const Vector&) const;
     
     //allow for scalar * and vector +
-    Vector operator * (double);
-    Vector operator + (Vector); 
-    Vector operator - (Vector); 
+    Vector operator * (double) const;
+    Vector operator + (const Vector&) const; 
+    Vector operator - (const Vector&) const; 
     
     
 };
@@ -75,8 +75,8 @@ class Ray{
 public:
     Ray() {}; 
     Ray(double, double, double, double, double, double);
-    Ray(Point, Point); 
-    Ray(Point, Vector);
+    Ray(const Point&, const Point&); 
+    Ray(const Point&, const Vector&);
 
     Vector direction; 
     Point origin; 
@@ -95,12 +95,12 @@ public:
         
         double r, g, b;
         
-        Color operator + (Color);  
-        Color operator * (Color); 
-        Color operator * (double); 
-        void operator += (Color); 
+        Color operator + (const Color&) const;  
+        Color operator * (const Color&) const; 
+        Color operator * (double) const; 
+        void operator += (const Color&); 
         
-        Color clone();
+        Color clone() const;
  };
 
 /*
@@ -129,16 +129,16 @@ class Matrix{
     // Instantiator shortcut for translation, scaling, or rotating (depends upon input char)
     Matrix(char, double, double, double, double); 
     
-    Matrix operator * (Matrix); 
-    Point operator * (Point);
-    Vector operator * (Vector);
-    Ray operator * (Ray);
+    Matrix operator * (const Matrix&) const; 
+    Point operator * (const Point&) const;
+    Vector operator * (const Vector&) const;
+    Ray operator * (const Ray&) const;
     
-    Matrix invert();
-    void debug();
-    Matrix clone();
+    Matrix invert() const;
+    void debug() const;
+    Matrix clone() const;
     
-    Vector vectorTimesM(Vector); 
+    Vector vectorTimesM(const Vector&) const; 
 };
 
 class MatrixStack{
@@ -156,7 +156,7 @@ class MatrixStack{
     
     void push(); 
     void pop();
-    void addTransform(Matrix, char);
+    void addTransform(const Matrix&, char);
      
 };
 
