@@ -168,7 +168,7 @@ void drawScreen() {
     
     //calculations for the ray from the camera to the screen
 	Vector3 look_vector, up_dir, right_dir, uv, rv, imgc, UL, UR, LL, LR, point;
-	Vector3 tempV1;
+	Vector3 tempV1, tempV2;
 	Color color;
 	Ray ray; 
 
@@ -325,8 +325,8 @@ int main(int argc, char *argv[]) {
 		for(int x = 0; x < Scene.width; x++)
 			for(int y = 0; y < Scene.height; y++)
 			{
-				if(imageBuffer[x][y].r != 0 || imageBuffer[x][y].g != 0 || imageBuffer[x][y].b != 0)
-					fout << "[x, y] " << x << ", " << y << " color " << imageBuffer[x][y].r << ", " << imageBuffer[x][y].g << ", " << imageBuffer[x][y].b << endl;
+				if(imageBuffer[x * Scene.height + y][0] != 0 || imageBuffer[x * Scene.height + y][1] != 0 || imageBuffer[x * Scene.height + y][2] != 0)
+					fout << "[x, y] " << x << ", " << y << " color " << imageBuffer[x * Scene.height + y][0] << ", " << imageBuffer[x * Scene.height + y][1] << ", " << imageBuffer[x * Scene.height + y][2] << endl;
 			}//y
 		//test
 
