@@ -144,9 +144,6 @@ void trace(Ray ray, const int depth, Color baseColor){
 			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KS_IDX]));
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
-
-		//test
-		//cout << baseColor[0];
     } // for   
     
     vector3Add(baseColor, baseColor, &(brdf[BRDF_KE_IDX])); // the emission of this object
@@ -170,9 +167,9 @@ void trace(Ray ray, const int depth, Color baseColor){
 void drawScreen() {
     
     //calculations for the ray from the camera to the screen
-	Vector3 look_vector, up_dir, right_dir, uv, rv, imgc, UL, UR, LL, LR, point, point1, point2;
+	Vector3 look_vector, up_dir, right_dir, uv, rv, imgc, UL, UR, LL, LR, point;
 	Vector3 tempV1;
-	Color allColors = {0};
+	Color color;
 	Ray ray; 
 
 	vector3Sub(look_vector, Scene.lookat, Scene.lookfrom);
@@ -194,14 +191,14 @@ void drawScreen() {
     
 	vector3Add(imgc, Scene.lookfrom, look_vector);
 	
+	vector3Add(UL, imgc, uv);
+	vector3Sub(UL, UL, rv);
 	vector3Add(UR, imgc, uv);
 	vector3Add(UR, UR, rv);
 	vector3Sub(LL, imgc, uv);
 	vector3Sub(LL, LL, rv);
 	vector3Sub(LR, imgc, uv);
-	vector3Add(LR, LR, rv);
-	vector3Add(UL, imgc, uv);
-	vector3Sub(UL, UL, rv);        
+	vector3Add(LR, LR, rv);	        
         
     int x, y;
     float u, v; 
@@ -211,23 +208,20 @@ void drawScreen() {
                 u = float(x)/Scene.width;
                 v = float(y)/Scene.height;
                 
-				vector3Scale(point1, LL, v * u);
+				vector3Scale(tempV2, LL, v * u);
 				vector3Scale(tempV1, UL, (1 - v) * u);
-				vector3Add(point1, point1, tempV1);
+				vector3Add(point, tempV2, tempV1);
                 
-				vector3Scale(point2, LR, v * (1 - u));
+				vector3Scale(tempV2, LR, v * (1 - u));
 				vector3Scale(tempV1, UR, (1 - v) * (1 - u));
-				vector3Add(point2, point2, tempV1);
-                
-				vector3Add(point, point1, point2);
+				vector3Add(point, point, tempV1);                
+				vector3Add(point, point, tempV2);
                 
                 setRayByPoint(ray, Scene.lookfrom, point);
 
-				Color color = {0};
+				setVector3(color, 0, 0, 0) ;
 				trace(ray, 0, color);
-				//test
-				if(color[0])
-					cout << color[0] << endl;
+				
                 vector3Copy(&(imageBuffer[x * Scene.height + y][0]), color); 
 			}//for, y
         }//for, x       
