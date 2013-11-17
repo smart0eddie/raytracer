@@ -226,7 +226,7 @@ void drawScreen() {
 				//test
 				if(color[0])
 					cout << color[0] << endl;
-                vector3Copy(&(imageBuffer[x * Scene.width + y][0]), color); 
+                vector3Copy(&(imageBuffer[x * Scene.height + y][0]), color); 
 			}//for, y
         }//for, x       
    
@@ -247,7 +247,7 @@ void myDisplay() {
 	float *c;
 	for (int x = 0; x < viewport.w; x++) {		
 		for (int y = 0; y < viewport.h; y++) {
-			c = &(imageBuffer[x * viewport.w + y][0]);
+			c = &(imageBuffer[x * viewport.h + y][0]);
 			glColor3f(c[0], c[1], c[2]);
 			glVertex2f(x + 0.5, y + 0.5);  
 		}
@@ -322,12 +322,12 @@ int main(int argc, char *argv[]) {
 		//test
 		cout << "w, h " << Scene.width << ", " << Scene.height << endl;
 		cout << "obj count " << Scene.triangleCount << endl;
-		for (int x = 0; x < Scene.width ; x += 100) {
-            for (int y = 0; y < Scene.height; y += 100) {
+		for (int x = 0; x < Scene.width ; x += 7) {
+            for (int y = 0; y < Scene.height; y += 7) {
 				cout << "@" << x << ", " << y << ", color = " 
-					<< imageBuffer[x * Scene.width + y][0] 
-					<< ", " << imageBuffer[x * Scene.width + y][1] 
-					<< ", " << imageBuffer[x * Scene.width + y][2] << endl;
+					<< imageBuffer[x * Scene.height + y][0] 
+					<< ", " << imageBuffer[x * Scene.height + y][1] 
+					<< ", " << imageBuffer[x * Scene.height + y][2] << endl;
 			}//y
 		}//x
 		//test
