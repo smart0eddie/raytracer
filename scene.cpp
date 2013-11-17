@@ -319,7 +319,7 @@ int main(int argc, char *argv[]) {
 		//test
 		ofstream fout("output_test.txt"); 
 		if(!fout) { 
-			cout << "無法寫入檔案\n"; 
+			cout << "can't write to file\n"; 
 			return 1; 
 		}
 		for(int x = 0; x < Scene.width; x++)
