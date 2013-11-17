@@ -95,14 +95,14 @@ parsedScene loadScene(std::string file) {
       //  Deﬁnes a maximum number of vertices for later triangle speciﬁcations. 
       //  It must be set before vertices are deﬁned.
       else if(!splitline[0].compare("maxverts")) {
-		  vertexCount = atof(splitline[1].c_str());
+		  vertexCount = atoi(splitline[1].c_str());
 		  vertices = new float[vertexCount][4];
       }
 	  //maxtri number
       //  Deﬁnes a maximum number of triangles for later triangle speciﬁcations. 
       //  It must be set before vertices are deﬁned.
       else if(!splitline[0].compare("maxtri")) {
-		  S.triangleCount = atof(splitline[1].c_str());
+		  S.triangleCount = atoi(splitline[1].c_str());
 		  S.triangleList = new float[S.triangleCount][16];
 		  S.brdfList = new float[S.triangleCount][16];
       }
@@ -110,7 +110,7 @@ parsedScene loadScene(std::string file) {
       //  Deﬁnes a maximum number of lights for later triangle speciﬁcations. 
       //  It must be set before vertices are deﬁned.
       else if(!splitline[0].compare("maxlight")) {
-		  S.lightCount = atof(splitline[1].c_str());
+		  S.lightCount = atoi(splitline[1].c_str());
 		  S.lightList = new float[S.lightCount][12];
       }
       //maxvertnorms number

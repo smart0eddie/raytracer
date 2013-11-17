@@ -112,6 +112,7 @@ void trace(Ray ray, const int depth, Color baseColor){
     float *N = &(Scene.triangleList[intershapeIdx][TRIANGLE_NORMAL_IDX]); 
 	
 	float temp1;
+	float lightRayLen = 0;
 	float dist = LARGE_NUM;
 	float *light = NULL;
 	//color from lights
@@ -119,26 +120,27 @@ void trace(Ray ray, const int depth, Color baseColor){
 		light = &(Scene.lightList[i][0]);
         if(light[LIGHT_ISDIR_IDX] != 0) {
 			setRayByVector(lightray, inter, &(light[LIGHT_SRC_IDX]));
-			temp1 = sqrt(vector3Dot(&(light[LIGHT_SRC_IDX]), &(light[LIGHT_SRC_IDX])));
-			vector3Scale(tempV2, &(light[LIGHT_SRC_IDX]), 0.001 / temp1); // shadow bias
+			lightRayLen = sqrt(vector3Dot(&(light[LIGHT_SRC_IDX]), &(light[LIGHT_SRC_IDX])));
+			vector3Scale(tempV2, &(light[LIGHT_SRC_IDX]), 0.001 / lightRayLen); // shadow bias
         } // if
 		else { 
 			vector3Sub(tempV1, &(light[LIGHT_SRC_IDX]), inter);
             setRayByVector(lightray, inter, tempV1);
-			dist = sqrt(vector3Dot(tempV1, tempV1));
-			vector3Scale(tempV2, tempV1, 0.001 / dist); // shadow bias
+			lightRayLen = sqrt(vector3Dot(tempV1, tempV1));
+			dist = lightRayLen;
+			vector3Scale(tempV2, tempV1, 0.001 / lightRayLen); // shadow bias
 		}// else
 				
 		vector3Add(&(lightray[RAY_ORIGIN_IDX]), &(lightray[RAY_ORIGIN_IDX]), tempV2);// shadow bias
         if(!hasIntersect(Scene.triangleList, Scene.triangleCount, lightray, dist)){ //light ray for this light is not blocked by any shapes. 
-			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), max(0.0f, vector3Dot(&(lightray[RAY_DIRECTION_IDX]), N)));
+			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), max(0.0f, vector3Dot(&(lightray[RAY_DIRECTION_IDX]), N)) / lightRayLen);
 			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KD_IDX]));
 			vector3Add(baseColor, baseColor, tempC1); 
 
 			getReflection(tempV1, &(lightray[RAY_DIRECTION_IDX]), N);
 			vector3Sub(tempV2, &(ray[RAY_ORIGIN_IDX]), inter);
 			vector3Normalize(tempV2, tempV2);
-			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), pow(max(0.0f, vector3Dot(tempV1, tempV2)), round(brdf[BRDF_SP_IDX])));
+			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), pow(max(0.0f, vector3Dot(tempV1, tempV2)) / lightRayLen, round(brdf[BRDF_SP_IDX])));
 			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KS_IDX]));
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
