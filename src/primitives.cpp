@@ -92,7 +92,7 @@ bool intersectTriangle(constTriangle triangle, constRay ray, float &rr){
 	Vector3 u, v, w, w0, intersect;
 	float nDotV = vector3Dot(&(triangle[TRIANGLE_NORMAL_IDX]), &(ray[RAY_DIRECTION_IDX]));
 
-	if(nDotV < 0) return false; // ray parallel to triangle
+	if(nDotV == 0) return false; // ray parallel to triangle
 
 	vector3Sub(u, &(triangle[TRIANGLE_PT2_IDX]), &(triangle[TRIANGLE_PT1_IDX]));
 	vector3Sub(v, &(triangle[TRIANGLE_PT3_IDX]), &(triangle[TRIANGLE_PT1_IDX]));
