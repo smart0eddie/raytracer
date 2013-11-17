@@ -53,6 +53,7 @@ typedef const float constTriangle[16];
 
 /* utility function */
 //vector
+void setVector3(Vector3 dst, float x, float y, float z);
 void vector3Add(Vector3 dst, constVector3 v1, constVector3 v2);
 void vector3Sub(Vector3 dst, constVector3 v1, constVector3 v2); // v1 - v2
 void vector3Scale(Vector3 dst, constVector3 v1, const float scalar);

@@ -6,34 +6,28 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
-
-
-#include "primitives.h"
-#include "shapes.h"
+#include <cmath>
 
 class parsedScene{
-    public:
-        int width, height, reflectiondepth; 
+    public:		
+        int width, height, reflectiondepth, triangleCount, lightCount; 
+        float fov;        
+        float aaJitter; // jitter distance, 0 means none, 16 means approx 16 pixels???? not really, but it looks like it
+						// jitter does not work unless aaDepth >= 2.0
+		float aaDepth; // how many more iterations for aa, 1 means none, 32 is really strong, shoudl be d^k
+
         Color ambient;
-        Point lookfrom, lookat;
-        Vector up_dir;
-        double fov;
-        
-        double aaJitter; // jitter distance, 0 means none, 16 means approx 16 pixels???? not really, but it looks like it
-        // jitter does not work unless aaDepth >= 2.0
-		double aaDepth; // how many more iterations for aa, 1 means none, 32 is really strong, shoudl be d^k
-        
+        Vector3 lookfrom, lookat, up_dir;
+
         std::string outputFileName;
         
-        ShapeList shapes;
-        vector<Light> lights;
+        float (*triangleList)[16];
+		float (*brdfList)[16];
+        float (*lightList)[12];
     
     parsedScene(); 
     
-};
-
+};// class parsedScene
 
 parsedScene loadScene(std::string file);
-
-
 #endif

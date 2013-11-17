@@ -2,6 +2,13 @@
 
 /* utility function */
 //vector
+void setVector3(Vector3 dst, float x, float y, float z){
+	dst[0] = x;
+	dst[1] = y;
+	dst[2] = z;
+	dst[3] = 0;
+} // set vector
+
 void vector3Add(Vector3 dst, constVector3 v1, constVector3 v2){	
 	dst[0] = v1[0] + v2[0];
 	dst[1] = v1[1] + v2[1];
@@ -107,7 +114,7 @@ bool intersectTriangle(constTriangle triangle, constRay ray, float &rr){
     if (s < 0.0 || t < 0.0 || (s + t) > 1.0) return false; // intersect is outside triangle        
 
 	rr = r;
-    return true;                       // intersect is in T
+    return true;                       // intersect is in triangle
 } // triangle intersect test
 
 // only check if intersect with any triangle
