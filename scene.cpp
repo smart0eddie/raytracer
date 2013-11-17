@@ -316,16 +316,18 @@ int main(int argc, char *argv[]) {
 		}
 		
 		//test
-		cout << "w, h " << Scene.width << ", " << Scene.height << endl;
-		cout << "obj count " << Scene.triangleCount << endl;
-		for (int x = 0; x < Scene.width ; x += 7) {
-            for (int y = 0; y < Scene.height; y += 7) {
-				cout << "@" << x << ", " << y << ", color = " 
-					<< imageBuffer[x * Scene.height + y][0] 
-					<< ", " << imageBuffer[x * Scene.height + y][1] 
-					<< ", " << imageBuffer[x * Scene.height + y][2] << endl;
+		//test
+		ofstream fout("output_test.txt"); 
+		if(!fout) { 
+			cout << "無法寫入檔案\n"; 
+			return 1; 
+		}
+		for(int x = 0; x < Scene.width; x++)
+			for(int y = 0; y < Scene.height; y++)
+			{
+				if(imageBuffer[x][y].r != 0 || imageBuffer[x][y].g != 0 || imageBuffer[x][y].b != 0)
+					fout << "[x, y] " << x << ", " << y << " color " << imageBuffer[x][y].r << ", " << imageBuffer[x][y].g << ", " << imageBuffer[x][y].b << endl;
 			}//y
-		}//x
 		//test
 
 		cout << " ---Ray Tracer finished" << endl;
