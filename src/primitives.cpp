@@ -58,9 +58,9 @@ void vector3Normalize(Vector3 dst, constVector3 v1){
 } // normalize
 
 void vector3Copy(Vector3 dst, constVector3 src){
-	dst[0] = v1[0];
-	dst[1] = v1[1];
-	dst[2] = v1[2];
+	dst[0] = src[0];
+	dst[1] = src[1];
+	dst[2] = src[2];
 	dst[3] = 0;
 } // copy
 
@@ -125,7 +125,7 @@ bool intersectTriangle(constTriangle triangle, constRay ray, float &rr){
 } // triangle intersect test
 
 // only check if intersect with any triangle
-bool hasIntersect(const float[][16] triangleList, const int triangleCount, constRay ray, const float tmax){
+bool hasIntersect(float(*triangleList)[16] , const int triangleCount, constRay ray, const float tmax){
 	float t = -1;
 	bool intersect;
 
@@ -138,7 +138,7 @@ bool hasIntersect(const float[][16] triangleList, const int triangleCount, const
 } // has intersect
 
 // check every possible triangle and return the nearest
-bool nearestIntersect(const float[][16] triangleList, const int triangleCount, constRay ray, Vector3 intersectPt, int &triangleIdx, const float tmax){
+bool nearestIntersect(float(*triangleList)[16] , const int triangleCount, constRay ray, Vector3 intersectPt, int &triangleIdx, const float tmax){
 	float t = -1;
     float min = LARGE_NUM;
 	bool intersect;
@@ -154,7 +154,7 @@ bool nearestIntersect(const float[][16] triangleList, const int triangleCount, c
     if(min == LARGE_NUM || min > tmax) return false; //no intersection
 
 	// intersect point = ray.origin + r * ray.direction
-	vector3Scale(intersectPt, &(ray[RAY_DIRECTION_IDX]), r);
+	vector3Scale(intersectPt, &(ray[RAY_DIRECTION_IDX]), min);
 	vector3Add(intersectPt, intersectPt, &(ray[RAY_ORIGIN_IDX]));
 
     return true; 

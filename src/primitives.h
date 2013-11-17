@@ -66,8 +66,8 @@ void colorMultiply(Color dst, constColor c1, constColor c2);
 //triangle
 void setTriangle(Triangle triangle, constVector3 p1, constVector3 p2, constVector3 p3);
 bool intersectTriangle(constTriangle triangle, constRay ray, float &rr); // check if intersect with the triangle
-bool hasIntersect(const float[][16] triangleList, const int triangleCount, constRay ray, const float tmax); // only check if intersect with any triangle
-bool nearestIntersect(const float[][16] triangleList, const int triangleCount, constRay ray, Vector3 intersectPt, int &triangleIdx, const float tmax); // check every possible triangle and return the nearest
+bool hasIntersect(float(*triangleList)[16], const int triangleCount, constRay ray, const float tmax); // only check if intersect with any triangle
+bool nearestIntersect(float(*triangleList)[16], const int triangleCount, constRay ray, Vector3 intersectPt, int &triangleIdx, const float tmax); // check every possible triangle and return the nearest
 
 //ray
 void setRayByValue(Ray ray, float x, float y, float z, float dx, float dy, float dz);

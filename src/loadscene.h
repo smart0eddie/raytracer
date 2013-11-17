@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <cmath>
 
+#include "primitives.h"
+
 class parsedScene{
     public:		
         int width, height, reflectiondepth, triangleCount, lightCount; 

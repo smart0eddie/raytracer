@@ -23,11 +23,11 @@ parsedScene loadScene(std::string file) {
 
     float (*vertices)[4];
 	Brdf brdf = {0.2, 0.2, 0.2, 0, //kd
-				 0, 0, 0, 0//ks
-				 0, 0, 0, 0//ke
+				 0, 0, 0, 0,//ks
+				 0, 0, 0, 0,//ke
 				 0, //kr
 				 1, //sp				
-				 0, 0}//dummy
+				 0, 0};//dummy
 
     while(inpfile.good()) {
       std::vector<std::string> splitline;
@@ -103,15 +103,15 @@ parsedScene loadScene(std::string file) {
       //  It must be set before vertices are deﬁned.
       else if(!splitline[0].compare("maxtri")) {
 		  S.triangleCount = atof(splitline[1].c_str());
-		  S.triangleList = new float[triangleCount][16];
-		  S.brdfList = new float[triangleCount][16];
+		  S.triangleList = new float[S.triangleCount][16];
+		  S.brdfList = new float[S.triangleCount][16];
       }
 	  //maxlight number
       //  Deﬁnes a maximum number of lights for later triangle speciﬁcations. 
       //  It must be set before vertices are deﬁned.
       else if(!splitline[0].compare("maxlight")) {
 		  S.lightCount = atof(splitline[1].c_str());
-		  S.lightList = new float[lightCount][12];
+		  S.lightList = new float[S.lightCount][12];
       }
       //maxvertnorms number
       //  Deﬁnes a maximum number of vertices with normals for later speciﬁcations.
@@ -150,10 +150,10 @@ parsedScene loadScene(std::string file) {
       else if(!splitline[0].compare("tri")) {
 		  if(triangleIdx < S.triangleCount){
 			setTriangle( &(S.triangleList[triangleIdx][0]),
-						 &(vertices[atof(splitline[1].c_str())][0]), //p1
-						 &(vertices[atof(splitline[2].c_str())][0]), //p2
-						 &(vertices[atof(splitline[3].c_str())][0])); //p3
-			brdfCopy(&(S.brdfList[triangleIdx][0], brdf);
+						 &(vertices[atoi(splitline[1].c_str())][0]), //p1
+						 &(vertices[atoi(splitline[2].c_str())][0]), //p2
+						 &(vertices[atoi(splitline[3].c_str())][0])); //p3
+			brdfCopy(&(S.brdfList[triangleIdx][0]), brdf);
 			++triangleIdx;
 		  }//if
 		  else{
@@ -270,7 +270,7 @@ parsedScene loadScene(std::string file) {
       //diffuse r g b
       //  speciﬁes the diﬀuse color of the surface.
       else if(!splitline[0].compare("diffuse")) {
-		setVector3( brdf[BRDF_KD_IDX],
+		setVector3( &(brdf[BRDF_KD_IDX]),
 					atof(splitline[1].c_str()),  //r
 					atof(splitline[2].c_str()),  //g
 					atof(splitline[3].c_str())); //b        
@@ -279,7 +279,7 @@ parsedScene loadScene(std::string file) {
       //specular r g b 
       //  speciﬁes the specular color of the surface.
       else if(!splitline[0].compare("specular")) {
-		  setVector3( brdf[BRDF_KS_IDX],
+		  setVector3( &(brdf[BRDF_KS_IDX]),
 					atof(splitline[1].c_str()),  //r
 					atof(splitline[2].c_str()),  //g
 					atof(splitline[3].c_str())); //b        
@@ -293,7 +293,7 @@ parsedScene loadScene(std::string file) {
       //emission r g b
       //  gives the emissive color of the surface.
       else if(!splitline[0].compare("emission")) {
-        setVector3( brdf[BRDF_KE_IDX],
+        setVector3( &(brdf[BRDF_KE_IDX]),
 					atof(splitline[1].c_str()),  //r
 					atof(splitline[2].c_str()),  //g
 					atof(splitline[3].c_str())); //b        
@@ -311,7 +311,9 @@ parsedScene loadScene(std::string file) {
     }
 
     inpfile.close();
-    
+	
+	//delete obj
+	delete[] vertices;
 
     //cout << "light x" << S.lights[0].x << ", " <<  S.lights[1].x << endl;
     

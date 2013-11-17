@@ -131,20 +131,20 @@ void trace(Ray ray, const int depth, Color baseColor){
 				
 		vector3Add(&(lightray[RAY_ORIGIN_IDX]), &(lightray[RAY_ORIGIN_IDX]), tempV2);// shadow bias
         if(!hasIntersect(Scene.triangleList, Scene.triangleCount, lightray, dist)){ //light ray for this light is not blocked by any shapes. 
-			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), max(0.0, vector3Dot(&(lightray[RAY_DIRECTION_IDX]), N)));
+			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), max(0.0f, vector3Dot(&(lightray[RAY_DIRECTION_IDX]), N)));
 			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KD_IDX]));
 			vector3Add(baseColor, baseColor, tempC1); 
 
 			getReflection(tempV1, &(lightray[RAY_DIRECTION_IDX]), N);
 			vector3Sub(tempV2, &(ray[RAY_ORIGIN_IDX]), inter);
 			vector3Normalize(tempV2, tempV2);
-			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), pow(max(0.0, vector3Dot(tempV1, tempV2)), round(brdf.sp)));
+			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), pow(max(0.0f, vector3Dot(tempV1, tempV2)), round(brdf[BRDF_SP_IDX])));
 			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KS_IDX]));
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
     } // for   
     
-    vector3Add(baseColor, baseColor, brdf[BRDF_KE_IDX]); // the emission of this object
+    vector3Add(baseColor, baseColor, &(brdf[BRDF_KE_IDX])); // the emission of this object
     vector3Add(baseColor, baseColor, Scene.ambient); // the overal ambient glow of the scene.
     
 	//reflection	
@@ -165,7 +165,7 @@ void trace(Ray ray, const int depth, Color baseColor){
 void drawScreen() {
     
     //calculations for the ray from the camera to the screen
-	Vector3 look_vector, up_dir, right_dir, up_dir, uv, rv, imgc, UL, UR, LL, LR, point, point1, point2;
+	Vector3 look_vector, up_dir, right_dir, uv, rv, imgc, UL, UR, LL, LR, point, point1, point2;
 	Vector3 tempV1;
 	Color allColors = {0};
 	Ray ray; 
@@ -200,7 +200,7 @@ void drawScreen() {
         
     int x, y;
     float u, v; 
-	#pragma omp parallel for private(x, y, u, v, point, point1, point2, ray, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
+	//#pragma omp parallel for private(x, y, u, v, point, point1, point2, ray, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
         for (x = 0; x < Scene.width ; x += 1) {
             for (y = 0; y < Scene.height; y += 1) {
                 u = float(x)/Scene.width;
@@ -220,7 +220,7 @@ void drawScreen() {
 
 				Color color = {0};
 				trace(ray, 0, color);
-                vector3Copy(&(imageBuffer[x * width + y][0]), color); 
+                vector3Copy(&(imageBuffer[x * Scene.width + y][0]), color); 
 			}//for, y
         }//for, x       
    
@@ -294,7 +294,7 @@ int main(int argc, char *argv[]) {
 			glutInit(&argc, argv);
 
 			//This tells glut to use a float-buffered window with red, green, and blue channels 
-			glutInitDisplayMode(GLUT_float | GLUT_RGB);
+			glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
 			// Initalize theviewport size
 			viewport.w = Scene.width;
@@ -313,7 +313,18 @@ int main(int argc, char *argv[]) {
 			
 		}
 		
-		
+		//test
+		cout << "w, h " << Scene.width << ", " << Scene.height << endl;
+		cout << "obj count " << Scene.triangleCount << endl;
+		for (int x = 0; x < Scene.width ; x += 100) {
+            for (int y = 0; y < Scene.height; y += 100) {
+				cout << "@" << x << ", " << y << ", color = " 
+					<< imageBuffer[x * Scene.width + y][0] 
+					<< ", " << imageBuffer[x * Scene.width + y][1] 
+					<< ", " << imageBuffer[x * Scene.width + y][2] << endl;
+			}//y
+		}//x
+		//test
 
 		cout << " ---Ray Tracer finished" << endl;
 
@@ -335,6 +346,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	delete[] Scene.triangleList;
+	delete[] Scene.brdfList;
+	delete[] Scene.lightList;
     return 0;
 }
 
