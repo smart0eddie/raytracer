@@ -1,5 +1,5 @@
 #land
-size 400 300
+size 50 50
 camera 0 0 6 0 0 0 0 1 0 30
 
 maxlight 3

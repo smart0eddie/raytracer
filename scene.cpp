@@ -142,6 +142,9 @@ void trace(Ray ray, const int depth, Color baseColor){
 			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KS_IDX]));
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
+
+		//test
+		//cout << baseColor[0];
     } // for   
     
     vector3Add(baseColor, baseColor, &(brdf[BRDF_KE_IDX])); // the emission of this object
@@ -220,6 +223,9 @@ void drawScreen() {
 
 				Color color = {0};
 				trace(ray, 0, color);
+				//test
+				if(color[0])
+					cout << color[0] << endl;
                 vector3Copy(&(imageBuffer[x * Scene.width + y][0]), color); 
 			}//for, y
         }//for, x       
@@ -287,7 +293,7 @@ int main(int argc, char *argv[]) {
 		double time = 0.0;
 		time = timestamp();
 		drawScreen(); // the main computation hog
-		printf("Time %f", timestamp() - time);
+		printf("Time %f\n", timestamp() - time);
 		
 		if (flagDrawToScreen){
 			cout << endl << endl << "::: To Screen :::" << endl << endl;
