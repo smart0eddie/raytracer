@@ -165,34 +165,39 @@ void trace(Ray ray, const int depth, Color baseColor){
 void drawScreen() {
     
     //calculations for the ray from the camera to the screen
-    Vector look_vector = Vector(Scene.lookfrom, Scene.lookat).normalize();
-    Vector up_dir = Scene.up_dir;
-    
-    
-    Vector right_dir = up_dir.crossProduct(look_vector);
-    right_dir = right_dir.normalize();
+	Vector3 look_vector, up_dir, right_dir, up_dir, uv, rv, imgc, UL, UR, LL, LR, point, point1, point2;
+	Vector3 tempV1;
+	Color allColors = {0};
+	Ray ray; 
 
-    up_dir = right_dir.crossProduct(look_vector);
+	vector3Sub(look_vector, Scene.lookat, Scene.lookfrom);
+	vector3Normalize(look_vector, look_vector);
+	vector3Copy(up_dir, Scene.up_dir);    
+    
+	vector3Cross(right_dir, up_dir, look_vector);
+	vector3Normalize(right_dir, right_dir);
+
+	vector3Cross(up_dir, right_dir, look_vector);
     
     float fov = Scene.fov * PI / 180.0;
     float rat = (float(Scene.width)/float(Scene.height));
     float iph = tan(fov/2);
     float ipw = tan(fov/2);
    
-    Vector uv = up_dir*iph;
-    Vector rv = right_dir*ipw*rat;
+	vector3Scale(uv, up_dir, iph);
+	vector3Scale(rv, right_dir, ipw * rat);
     
-    Point imgc = Scene.lookfrom + look_vector;
-    Point UL = imgc +  uv     + (rv*-1);
-    Point UR = imgc +  uv     +  rv;
-    Point LL = imgc + (uv*-1) + (rv*-1);
-    Point LR = imgc + (uv*-1) +  rv;
-    
-    Point point, point1, point2; 
-    Ray ray; 
-    
-    Color allColors = Color(0, 0, 0);
-    
+	vector3Add(imgc, Scene.lookfrom, look_vector);
+	
+	vector3Add(UR, imgc, uv);
+	vector3Add(UR, UR, rv);
+	vector3Sub(LL, imgc, uv);
+	vector3Sub(LL, LL, rv);
+	vector3Sub(LR, imgc, uv);
+	vector3Add(LR, LR, rv);
+	vector3Add(UL, imgc, uv);
+	vector3Sub(UL, UL, rv);        
+        
     int x, y;
     float u, v; 
 	#pragma omp parallel for private(x, y, u, v, point, point1, point2, ray, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
@@ -201,30 +206,25 @@ void drawScreen() {
                 u = float(x)/Scene.width;
                 v = float(y)/Scene.height;
                 
-                point1 = (LL*v) + (UL*(1-v));
-                point1 = point1 * u;
+				vector3Scale(point1, LL, v * u);
+				vector3Scale(tempV1, UL, (1 - v) * u);
+				vector3Add(point1, point1, tempV1);
                 
-                point2 = (LR*v) + (UR*(1-v));
-                point2 = point2 * (1-u);
-                point = point1 + point2;
+				vector3Scale(point2, LR, v * (1 - u));
+				vector3Scale(tempV1, UR, (1 - v) * (1 - u));
+				vector3Add(point2, point2, tempV1);
                 
-                ray = Ray(Scene.lookfrom, point);
-                ray.direction = ray.direction.normalize();
+				vector3Add(point, point1, point2);
+                
+                setRayByPoint(ray, Scene.lookfrom, point);
 
-                imageBuffer[x][y] = trace(ray, 0, Color(0, 0, 0));
-                
-        //some printing to keep track of progress                 
-        //if((x%int(Scene.width/8)) == 0 && y == 0)  cout << "." << endl; 
-        //if(x == int(Scene.width/2) && y == int(Scene.height/2)) cout << "  halfway!" << endl; 
+				Color color = {0};
+				trace(ray, 0, color);
+                vector3Copy(&(imageBuffer[x * width + y][0]), color); 
 			}//for, y
         }//for, x       
    
 }//draw screen
-
-
-
-
-
 
 //****************************************************
 // function for openGl screen rendering.
@@ -238,12 +238,11 @@ void myDisplay() {
 
 	glBegin(GL_POINTS); 
 
-	Color c;
+	float *c;
 	for (int x = 0; x < viewport.w; x++) {		
 		for (int y = 0; y < viewport.h; y++) {
-			c = imageBuffer[x][y];
-			//cout << "c.r" << c.r << endl;
-			glColor3f(c.r, c.g, c.b);
+			c = &(imageBuffer[x * viewport.w + y][0]);
+			glColor3f(c[0], c[1], c[2]);
 			glVertex2f(x + 0.5, y + 0.5);  
 		}
 	}
@@ -251,9 +250,7 @@ void myDisplay() {
 	glEnd(); 
 
 	glFlush();
-	glutSwapBuffers();					// swap buffers (we earlier set float buffer)
-	
-	
+	glutSwapBuffers();					// swap buffers (we earlier set float buffer)	
 }
 
 int main(int argc, char *argv[]) {
@@ -285,9 +282,9 @@ int main(int argc, char *argv[]) {
 		if (flagDrawToScreen)
 			cout << " ---Writing to screen" << endl;
 		
-		imageBuffer = vector<vector<Color> >(Scene.width, vector<Color>(Scene.height, Color(0,0,0)));
+		imageBuffer = new float[Scene.width * Scene.height][4];
 	    
-		float time = 0.0;
+		double time = 0.0;
 		time = timestamp();
 		drawScreen(); // the main computation hog
 		printf("Time %f", timestamp() - time);
