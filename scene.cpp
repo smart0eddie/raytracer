@@ -34,11 +34,11 @@
 #include <time.h>
 #include <math.h>
 
-#include "src/brdf.h"
+#include "src/primitives.h"
 #include "src/loadscene.h"
 #include "src/imgwriter/lodepng.h"
 
-double timestamp()
+float timestamp()
 {
 	struct timeval tv;
 	gettimeofday(&tv, 0);
@@ -67,9 +67,9 @@ class Viewport {
 //****************************************************
 Viewport viewport;
 parsedScene Scene;
-vector<vector<Color> > imageBuffer;
+float (*imageBuffer)[4];
 
-double cosval = 0;
+float cosval = 0;
 bool flagDrawToScreen = false;
 bool flagDrawToFile = false;
 
@@ -93,63 +93,74 @@ void myKeyboardFunc(unsigned char key, int x, int y){
     exit(0);
 }
 
-Color trace(Ray ray, int depth, Color baseColor){
+void trace(Ray ray, const int depth, Color baseColor){
     if (depth > Scene.reflectiondepth){
-        return Color(0, 0, 0);
+        return;
     }
 
+	Vector3 inter;  //ray from camera intersects a shape at this point
+	Vector3 tempV1, tempV2;
+	Color tempC1;
+	Color reflectColor = {0}; // color from reflected ray
+	Ray lightray, reflectedRay;
 
-    Point inter = Point(0, 0, 0);  //ray from camera intersects a shape at this point
-    Shape* intershape = NULL; //which shape is intersected. note you can't instantiate abstract class
-    if(!Scene.shapes.checkIntersect(ray, &inter, intershape, LARGE_NUM)) //camera ray hits nothing, return background
-        return Color(0, 0, 0);   
+    int intershapeIdx = -1; //which shape is intersected.
+    if(!nearestIntersect(Scene.triangleList, Scene.triangleCount, ray, inter, intershapeIdx, LARGE_NUM)) //ray hits nothing, return
+        return;   
           
-    BRDF brdf = intershape->brdf; 
-    Vector N = intershape->getNormal(inter); 
-	size_t lightCount = Scene.lights.size();
-    for(size_t i = 0; i < lightCount; i++){
-        Ray lightray, L;
-        if(Scene.lights[i].directional) {
-            lightray = Ray(inter, Vector(Point(0,0,0), Scene.lights[i].source).normalize()); 
-            
-        } else {
-            lightray = Ray(inter, Vector(inter, Scene.lights[i].source).normalize());
-             
-		}
+    float *brdf = &(Scene.brdfList[intershapeIdx][0]); 
+    float *N = &(Scene.triangleList[intershapeIdx][TRIANGLE_NORMAL_IDX]); 
+	
+	float temp1;
+	float dist = LARGE_NUM;
+	float *light = NULL;
+	//color from lights
+    for(int i = 0; i < Scene.lightCount; ++i){
+		light = &(Scene.lightList[i][0]);
+        if(light[LIGHT_ISDIR_IDX] != 0) {
+			setRayByVector(lightray, inter, &(light[LIGHT_SRC_IDX]));
+			temp1 = sqrt(vector3Dot(&(light[LIGHT_SRC_IDX]), &(light[LIGHT_SRC_IDX])));
+			vector3Scale(tempV2, &(light[LIGHT_SRC_IDX]), 0.001 / temp1); // shadow bias
+        } // if
+		else { 
+			vector3Sub(tempV1, &(light[LIGHT_SRC_IDX]), inter);
+            setRayByVector(lightray, inter, tempV1);
+			dist = sqrt(vector3Dot(tempV1, tempV1));
+			vector3Scale(tempV2, tempV1, 0.001 / dist); // shadow bias
+		}// else
+				
+		vector3Add(&(lightray[RAY_ORIGIN_IDX]), &(lightray[RAY_ORIGIN_IDX]), tempV2);// shadow bias
+        if(!hasIntersect(Scene.triangleList, Scene.triangleCount, lightray, dist)){ //light ray for this light is not blocked by any shapes. 
+			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), max(0.0, vector3Dot(&(lightray[RAY_DIRECTION_IDX]), N)));
+			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KD_IDX]));
+			vector3Add(baseColor, baseColor, tempC1); 
+
+			getReflection(tempV1, &(lightray[RAY_DIRECTION_IDX]), N);
+			vector3Sub(tempV2, &(ray[RAY_ORIGIN_IDX]), inter);
+			vector3Normalize(tempV2, tempV2);
+			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), pow(max(0.0, vector3Dot(tempV1, tempV2)), round(brdf.sp)));
+			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KS_IDX]));
+			vector3Add(baseColor, baseColor, tempC1); 
+        } // if
+    } // for   
+    
+    vector3Add(baseColor, baseColor, brdf[BRDF_KE_IDX]); // the emission of this object
+    vector3Add(baseColor, baseColor, Scene.ambient); // the overal ambient glow of the scene.
+    
+	//reflection	
+    if (brdf[BRDF_KS_IDX + 0] > 0 || brdf[BRDF_KS_IDX + 1] > 0 || brdf[BRDF_KS_IDX + 2] > 0){
+		getReflection(tempV1, &(ray[RAY_DIRECTION_IDX]), N);
 		
-		double dist = sqrt(pow(Scene.lights[i].source.x - inter.x, 2) + 
-						pow(Scene.lights[i].source.y - inter.y, 2) + 
-						pow(Scene.lights[i].source.z - inter.z, 2));
-		
-		
-        Point bias = inter + lightray.direction * 0.001; //take into account shadow bias
-        L = Ray(bias, lightray.direction); 
-        if(!Scene.shapes.checkIntersect(L, dist)){ //light ray for this light is not blocked by any shapes. 
+		vector3Scale(tempV1, tempV1, -1);
+		vector3Scale(tempV2, tempV1, 0.1);
+		vector3Add(tempV2, tempV2, inter);//bias
 
-            Vector R = getReflection(L.direction, N); 
-            baseColor += brdf.kd * Scene.lights[i].color * max(0.0, L.direction.dotProduct(N)); 
-            baseColor += brdf.ks * Scene.lights[i].color * pow(max(0.0, R.dotProduct(Vector(inter, ray.origin).normalize())), brdf.sp); 
-        } 
-    }
-    
-    
-    baseColor += brdf.ke; // the emission of this object
-
-    baseColor += Scene.ambient; // the overal ambient glow of the scene.
-    
-
-    //if (brdf.kr > 0){
-    if (brdf.ks.r > 0 || brdf.ks.g > 0 || brdf.ks.b > 0){
-		Vector reflectDir = getReflection(ray.direction, N).negative();
-		Ray reflectedRay = Ray(inter + reflectDir * 0.1, reflectDir); //bias
-		baseColor += trace(reflectedRay, depth + 1, baseColor) * brdf.ks; 
-    }
-    
-    return baseColor; 
-    
-}
-
-
+		setRayByVector(reflectedRay, tempV2, tempV1);
+		trace(reflectedRay, depth + 1, reflectColor);
+		colorMultiply(reflectColor, reflectColor, &(brdf[BRDF_KS_IDX]));
+		vector3Add(baseColor, baseColor, reflectColor);
+    } // if   
+} // trace
 
 void drawScreen() {
     
@@ -163,10 +174,10 @@ void drawScreen() {
 
     up_dir = right_dir.crossProduct(look_vector);
     
-    double fov = Scene.fov * PI / 180.0;
-    double rat = (double(Scene.width)/double(Scene.height));
-    double iph = tan(fov/2);
-    double ipw = tan(fov/2);
+    float fov = Scene.fov * PI / 180.0;
+    float rat = (float(Scene.width)/float(Scene.height));
+    float iph = tan(fov/2);
+    float ipw = tan(fov/2);
    
     Vector uv = up_dir*iph;
     Vector rv = right_dir*ipw*rat;
@@ -183,12 +194,12 @@ void drawScreen() {
     Color allColors = Color(0, 0, 0);
     
     int x, y;
-    double u, v; 
+    float u, v; 
 	#pragma omp parallel for private(x, y, u, v, point, point1, point2, ray, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
         for (x = 0; x < Scene.width ; x += 1) {
             for (y = 0; y < Scene.height; y += 1) {
-                u = double(x)/Scene.width;
-                v = double(y)/Scene.height;
+                u = float(x)/Scene.width;
+                v = float(y)/Scene.height;
                 
                 point1 = (LL*v) + (UL*(1-v));
                 point1 = point1 * u;
@@ -206,10 +217,9 @@ void drawScreen() {
         //if((x%int(Scene.width/8)) == 0 && y == 0)  cout << "." << endl; 
         //if(x == int(Scene.width/2) && y == int(Scene.height/2)) cout << "  halfway!" << endl; 
 			}//for, y
-        }//for, x
-        
+        }//for, x       
    
-}
+}//draw screen
 
 
 
@@ -241,7 +251,7 @@ void myDisplay() {
 	glEnd(); 
 
 	glFlush();
-	glutSwapBuffers();					// swap buffers (we earlier set double buffer)
+	glutSwapBuffers();					// swap buffers (we earlier set float buffer)
 	
 	
 }
@@ -277,7 +287,7 @@ int main(int argc, char *argv[]) {
 		
 		imageBuffer = vector<vector<Color> >(Scene.width, vector<Color>(Scene.height, Color(0,0,0)));
 	    
-		double time = 0.0;
+		float time = 0.0;
 		time = timestamp();
 		drawScreen(); // the main computation hog
 		printf("Time %f", timestamp() - time);
@@ -286,8 +296,8 @@ int main(int argc, char *argv[]) {
 			cout << endl << endl << "::: To Screen :::" << endl << endl;
 			glutInit(&argc, argv);
 
-			//This tells glut to use a double-buffered window with red, green, and blue channels 
-			glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+			//This tells glut to use a float-buffered window with red, green, and blue channels 
+			glutInitDisplayMode(GLUT_float | GLUT_RGB);
 
 			// Initalize theviewport size
 			viewport.w = Scene.width;

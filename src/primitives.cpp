@@ -64,6 +64,13 @@ void vector3Copy(Vector3 dst, constVector3 src){
 	dst[3] = 0;
 } // copy
 
+void colorMultiply(Color dst, constColor c1, constColor c2){
+	dst[0] = c1[0] * c2[0];
+	dst[1] = c1[1] * c2[1];
+	dst[2] = c1[2] * c2[2];
+	dst[3] = 0;
+} // color multiply
+
 //triangle
 void setTriangle(Triangle triangle, constVector3 p1, constVector3 p2, constVector3 p3){
 	Vector3 v1;

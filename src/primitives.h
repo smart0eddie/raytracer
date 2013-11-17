@@ -61,6 +61,7 @@ float vector3Dot(constVector3 v1, constVector3 v2);
 void vector3Cross(Vector3 dst, constVector3 v1, constVector3 v2); // v1 x v2
 void vector3Normalize(Vector3 dst, constVector3 v1);
 void vector3Copy(Vector3 dst, constVector3 src);
+void colorMultiply(Color dst, constColor c1, constColor c2);
 
 //triangle
 void setTriangle(Triangle triangle, constVector3 p1, constVector3 p2, constVector3 p3);
