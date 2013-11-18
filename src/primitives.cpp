@@ -89,6 +89,7 @@ void setTriangle(Triangle triangle, constVector3 p1, constVector3 p2, constVecto
 // check if intersect with the triangle
 // http://geomalgorithms.com/a06-_intersect-2.html
 bool intersectTriangle(constTriangle triangle, constRay ray, float &rr){
+
 	Vector3 u, v, w, w0, intersect;
 	float nDotV = vector3Dot(&(triangle[TRIANGLE_NORMAL_IDX]), &(ray[RAY_DIRECTION_IDX]));
 
@@ -191,6 +192,7 @@ void getReflection(Vector3 reflectionDirection, constVector3 rayDirection, const
 	// reflection = (normal * 2dp) - rayDirection
 	vector3Scale(reflectionDirection, normal, 2 * dp);
 	vector3Sub(reflectionDirection, reflectionDirection, rayDirection);
+	vector3Normalize(reflectionDirection, reflectionDirection);
 } // get reflection ray direction
 
 //light

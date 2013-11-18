@@ -140,7 +140,7 @@ void trace(Ray ray, const int depth, Color baseColor){
 			getReflection(tempV1, &(lightray[RAY_DIRECTION_IDX]), N);
 			vector3Sub(tempV2, &(ray[RAY_ORIGIN_IDX]), inter);
 			vector3Normalize(tempV2, tempV2);
-			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), pow(max(0.0f, vector3Dot(tempV1, tempV2)) / lightRayLen, round(brdf[BRDF_SP_IDX])));
+			vector3Scale(tempC1, &(light[LIGHT_COLOR_IDX]), pow(max(0.0f, vector3Dot(tempV1, tempV2)), brdf[BRDF_SP_IDX]));
 			colorMultiply(tempC1, tempC1, &(brdf[BRDF_KS_IDX]));
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
@@ -152,7 +152,6 @@ void trace(Ray ray, const int depth, Color baseColor){
 	//reflection	
     if (brdf[BRDF_KS_IDX + 0] > 0 || brdf[BRDF_KS_IDX + 1] > 0 || brdf[BRDF_KS_IDX + 2] > 0){
 		getReflection(tempV1, &(ray[RAY_DIRECTION_IDX]), N);
-		
 		vector3Scale(tempV1, tempV1, -1);
 		vector3Scale(tempV2, tempV1, 0.1);
 		vector3Add(tempV2, tempV2, inter);//bias
