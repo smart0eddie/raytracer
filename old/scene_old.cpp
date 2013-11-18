@@ -124,10 +124,10 @@ Color trace(Ray ray, int depth, Color baseColor){
 		
         Point bias = inter + lightray.direction * 0.001; //take into account shadow bias
         L = Ray(bias, lightray.direction); 
-        if(!Scene.shapes.checkIntersect(L, dist)){ //light ray for this light is not blocked by any shapes. 
-
-            Vector R = getReflection(L.direction, N); 
+        if(!Scene.shapes.checkIntersect(L, dist)){ //light ray for this light is not blocked by any shapes 
             baseColor += brdf.kd * Scene.lights[i].color * max(0.0, L.direction.dotProduct(N)); 
+
+			Vector R = getReflection(L.direction, N);
             baseColor += brdf.ks * Scene.lights[i].color * pow(max(0.0, R.dotProduct(Vector(inter, ray.origin).normalize())), brdf.sp); 
         } 
     }

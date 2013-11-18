@@ -172,18 +172,19 @@ void setRayByValue(Ray ray, float x, float y, float z, float dx, float dy, float
 	ray[RAY_DIRECTION_IDX + 1] = dy;
 	ray[RAY_DIRECTION_IDX + 2] = dz;
 	ray[RAY_DIRECTION_IDX + 3] = 0;
+	vector3Normalize(&(ray[RAY_DIRECTION_IDX]), &(ray[RAY_DIRECTION_IDX]));
 } // set ray by value
 
 void setRayByPoint(Ray ray, constVector3 origin, constVector3 p){
 	Vector3 dir;
 	vector3Sub(dir, p, origin);
 	vector3Copy(&(ray[RAY_ORIGIN_IDX]), origin);
-	vector3Copy(&(ray[RAY_DIRECTION_IDX]), dir);
+	vector3Normalize(&(ray[RAY_DIRECTION_IDX]), dir);
 } // set ray by two point
 
 void setRayByVector(Ray ray, constVector3 origin, constVector3 direction){
 	vector3Copy(&(ray[RAY_ORIGIN_IDX]), origin);
-	vector3Copy(&(ray[RAY_DIRECTION_IDX]), direction);
+	vector3Normalize(&(ray[RAY_DIRECTION_IDX]), direction);
 } // set ray by origin and direction
 
 void getReflection(Vector3 reflectionDirection, constVector3 rayDirection, constVector3 normal){
