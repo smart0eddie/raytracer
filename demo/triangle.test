@@ -4,7 +4,7 @@ camera 0 0 6 0 0 0 0 1 0 30
 
 maxlight 3
 maxverts 25
-maxtri 8
+maxtri 32
 
 point 0 0 1 0.5 0 0
 output land.bmp
@@ -67,3 +67,55 @@ diffuse 0.4 0.1 0.3
 tri 3 4 8
 diffuse 0.4 0.4 0.8
 tri 3 8 7
+
+diffuse 0.4 0.1 0.3
+tri 5 6 10
+diffuse 0.4 0.4 0.8
+tri 5 10 9
+diffuse 0.4 0.1 0.3
+tri 6 7 11
+diffuse 0.4 0.4 0.8
+tri 6 11 10
+diffuse 0.4 0.1 0.3
+tri 7 8 12
+diffuse 0.4 0.4 0.8
+tri 7 12 11
+diffuse 0.4 0.1 0.3
+tri 8 9 13
+diffuse 0.4 0.4 0.8
+tri 8 13 12
+
+diffuse 0.4 0.1 0.3
+tri 10 11 15
+diffuse 0.4 0.4 0.8
+tri 10 15 14
+diffuse 0.4 0.1 0.3
+tri 11 12 16
+diffuse 0.4 0.4 0.8
+tri 11 16 15
+diffuse 0.4 0.1 0.3
+tri 12 13 17
+diffuse 0.4 0.4 0.8
+tri 12 17 16
+diffuse 0.4 0.1 0.3
+tri 13 14 18
+diffuse 0.4 0.4 0.8
+tri 13 18 17
+
+diffuse 0.4 0.1 0.3
+tri 15 16 20
+diffuse 0.4 0.4 0.8
+tri 15 20 19
+diffuse 0.4 0.1 0.3
+tri 16 17 21
+diffuse 0.4 0.4 0.8
+tri 16 21 20
+diffuse 0.4 0.1 0.3
+tri 17 18 22
+diffuse 0.4 0.4 0.8
+tri 17 22 21
+diffuse 0.4 0.1 0.3
+tri 18 19 23
+diffuse 0.4 0.4 0.8
+tri 18 23 22
+

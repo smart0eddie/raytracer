@@ -168,8 +168,7 @@ void drawScreen() {
     
     //calculations for the ray from the camera to the screen
 	Vector3 look_vector, up_dir, right_dir, uv, rv, imgc, UL, UR, LL, LR, point;
-	Vector3 tempV1, tempV2;
-	Color color;
+	Vector3 tempV1, tempV2;	
 	Ray ray; 
 
 	vector3Sub(look_vector, Scene.lookat, Scene.lookfrom);
@@ -202,7 +201,7 @@ void drawScreen() {
         
     int x, y;
     float u, v; 
-	//#pragma omp parallel for private(x, y, u, v, point, point1, point2, ray, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
+	#pragma omp parallel for private(x, y, u, v, point, tempV1, tempV2, ray, Scene, fov, rat, iph, ipw, uv, rv, imgc, UL, UR, LL, LR)
         for (x = 0; x < Scene.width ; x += 1) {
             for (y = 0; y < Scene.height; y += 1) {
                 u = float(x)/Scene.width;
@@ -219,7 +218,7 @@ void drawScreen() {
                 
                 setRayByPoint(ray, Scene.lookfrom, point);
 
-				setVector3(color, 0, 0, 0) ;
+				Color color = {0};
 				trace(ray, 0, color);
 				
                 vector3Copy(&(imageBuffer[x * Scene.height + y][0]), color); 
